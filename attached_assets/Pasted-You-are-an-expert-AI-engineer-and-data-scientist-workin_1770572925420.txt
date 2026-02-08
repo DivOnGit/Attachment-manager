@@ -1,0 +1,188 @@
+You are an expert AI engineer and data scientist working on a dataset‑centric, research‑grade project.
+
+Project Title
+Learning Spatio‑Temporal Taxi Demand Distributions from NYC TLC Trip Records
+
+Core Principle
+The dataset is the primary artifact.
+Models, agents, and LLMs exist only to extract structure, patterns, and intelligence from the dataset.
+
+Do not invent toy data.
+Do not simplify away scale.
+Assume millions to billions of records.
+
+Dataset Context
+We are using the NYC TLC Trip Records dataset (yellow taxi trips initially).
+
+Each row represents a real completed taxi trip with:
+
+pickup datetime
+
+pickup location zone ID
+
+dropoff datetime
+
+dropoff location zone ID
+
+trip distance, fare, etc.
+
+The dataset spans multiple years and represents real human mobility behavior.
+
+Objective
+Build a predictive agent that learns from historical taxi trips and outputs:
+
+Probability distributions of future taxi demand across NYC zones for a given time window.
+
+This is spatio‑temporal density estimation, not simple regression.
+
+Agent Definition (Important)
+The “agent” in this project is predictive, not control‑based.
+
+The agent:
+
+Observes historical trip data
+
+Learns temporal + spatial demand patterns
+
+Outputs belief distributions over zones
+
+Does not take actions in the environment
+
+Formally:
+
+Input: past demand tensors + time context
+
+Output: probability vector over NYC taxi zones
+
+Learning: offline learning from historical data
+
+Technical Requirements
+1. Data Pipeline
+Implement:
+
+Efficient loading of large Parquet/CSV TLC files
+
+Time bucketing (e.g., 15‑min / 30‑min / 1‑hour slots)
+
+Spatial discretization using TLC Zone IDs
+
+Construction of demand tensors:
+
+X[t, z] = number of pickups in zone z during time t
+Normalize to obtain probability distributions per time slice.
+
+2. Feature Engineering
+For each prediction time t, construct:
+
+Lagged demand history: X[t‑1], X[t‑2], …, X[t‑k]
+
+Time features:
+
+hour of day (sin/cos)
+
+day of week
+
+weekend flag
+
+Optional extensibility for weather/events (but not required initially)
+
+3. Learning Model
+Start with a baseline, then allow extensibility:
+
+Baseline: simple temporal model
+
+Main model: LSTM / GRU / Temporal CNN
+
+Output layer MUST use softmax to produce a valid probability distribution
+
+Loss function:
+
+Cross‑entropy or KL‑divergence between predicted and true distributions
+
+4. Training Setup
+Offline training on historical data
+
+Chronological train/validation split (no shuffling)
+
+Metrics:
+
+KL divergence
+
+Cross‑entropy
+
+Top‑K zone accuracy
+
+Calibration (distribution sharpness)
+
+5. Output Representation
+The agent must produce:
+
+Probability maps over NYC zones
+
+Ranked list of zones by demand probability
+
+Time‑indexed demand tensors usable by downstream systems
+
+Role of LLM (Gemini 2.5 Flash)
+We are using:
+
+ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash",
+    temperature=0.3
+)
+The LLM:
+
+Does NOT learn from raw TLC data
+
+Does NOT replace forecasting models
+
+The LLM is used for:
+
+Interpreting model outputs
+
+Explaining why demand shifts occur
+
+Generating analytical summaries
+
+Acting as an orchestration / reasoning layer
+
+Treat Gemini as a post‑hoc intelligence layer, not the learner.
+
+Engineering Expectations
+Modular, readable Python code
+
+Clear separation between:
+
+data processing
+
+model training
+
+inference
+
+LLM reasoning
+
+Scalable design (assume large data)
+
+Reproducible experiments
+
+What You Should Do First
+Design the data schema and tensors
+
+Implement the preprocessing pipeline
+
+Build the baseline predictive model
+
+Verify probability outputs are valid
+
+Add LLM interpretation layer last
+
+What You Should NOT Do
+Do NOT downsample excessively without justification
+
+Do NOT convert this into a toy demo
+
+Do NOT make the agent the “hero” — the dataset is the hero
+
+Your goal is to produce a serious, defensible, dataset‑driven AI system that learns real urban mobility patterns from NYC taxi data.
+
+Proceed step by step.
